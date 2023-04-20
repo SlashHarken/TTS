@@ -12,7 +12,7 @@ os.chdir("../../../")
 ### Definitions ###
 # dataset
 VCTK_PATH = "/raid/datasets/VCTK_NEW_16khz_removed_silence_silero_vad/"  # download:  https://datashare.ed.ac.uk/bitstream/handle/10283/3443/VCTK-Corpus-0.92.zipdddddddddd
-RIR_SIMULATED_PATH = "/raid/datasets/DA/RIRS_NOISES/simulated_rirs/"  # download: https://www.openslr.org/17/
+RIR_SIMULATED_PATH = "/raid/datasets/DA/RIRS_NOISES/simulated_rirs/"  # download: https://www.openslr.org/28/
 MUSAN_PATH = "/raid/datasets/DA/musan/"  # download: https://www.openslr.org/17/
 
 # training
