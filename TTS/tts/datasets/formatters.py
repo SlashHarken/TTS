@@ -1,4 +1,5 @@
 import os
+from os.path import basename
 import re
 import xml.etree.ElementTree as ET
 from glob import glob
@@ -6,12 +7,56 @@ from pathlib import Path
 from typing import List
 
 import pandas as pd
+from more_itertools import flatten
 from tqdm import tqdm
 
 ########################
 # DATASETS
 ########################
 
+
+def ljspeech_modified(root_path, meta_file, **kwargs):  # pylint: disable=unused-argument
+    """Normalizes the LJSpeech meta data file to TTS format
+    https://keithito.com/LJ-Speech-Dataset/"""
+    txt_file = os.path.join(root_path, meta_file)
+    items = []
+    speaker_name = basename(root_path).replace(" ", "").lower()
+    with open(txt_file, "r", encoding="utf-8") as ttf:
+        for line in ttf:
+            cols = line.split("|")
+            wav_file = os.path.join(root_path, "wavs", cols[0])
+            text = cols[1]
+            items.append({"text": text, "audio_file": wav_file, "speaker_name": speaker_name, "root_path": root_path})
+    return items
+
+
+def multi_speaker_sqlite(root_path, meta_file_train, ignored_speakers=None, limit=-1):
+    # Root path is actually the speaker name and not an actual path
+    import sqlite3
+    from os.path import join, isfile
+    conn = sqlite3.connect((start_dir := r"A:/Downloads/Speech Datasets/") + "speech_data.sqlite3")
+    items = {}
+    for speaker in root_path.split(" "):
+        results = conn.execute(
+            "SELECT file_path, text, speaker_name, character_seconds_ratio FROM "
+            "speech_data WHERE speaker_name = ?",
+            [speaker]
+        ).fetchall()
+        items[speaker] = []
+        # character_duration
+        results = [x for x in results if 17 > abs(float(x[3])) > 9.5]
+        assert len(results) > 1
+        for result in results:
+            if ignored_speakers and result[2] in ignored_speakers:
+                continue
+            file_path = join(start_dir, result[0])
+            assert isfile(file_path), print(f'{file_path=} was not a file.')
+            items[speaker].append(
+                {"audio_file": file_path, "speaker_name": result[2], "text": result[1], "root_path": start_dir})
+    print('\n'.join([f'{speaker}={len(value)}' for speaker, value in items.items()]))
+    items = list(flatten([value for _, value in items.values()]))
+    return items
+    
 
 def coqui(root_path, meta_file, ignored_speakers=None):
     """Interal dataset formatter."""
