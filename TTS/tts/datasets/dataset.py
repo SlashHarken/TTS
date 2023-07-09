@@ -3,7 +3,7 @@ import collections
 import os
 import random
 from typing import Dict, List, Union
-
+from os.path import basename
 import numpy as np
 import torch
 import tqdm
@@ -429,7 +429,7 @@ class TTSDataset(Dataset):
             # get pre-computed d-vectors
             if self.d_vector_mapping is not None:
                 embedding_keys = list(batch["audio_unique_name"])
-                d_vectors = [self.d_vector_mapping[w]["embedding"] for w in embedding_keys]
+                d_vectors = [self.d_vector_mapping[basename(w)]["embedding"] for w in embedding_keys]
             else:
                 d_vectors = None
 
