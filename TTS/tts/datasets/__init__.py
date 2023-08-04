@@ -7,6 +7,7 @@ from typing import Callable, Dict, List, Tuple, Union
 import numpy as np
 
 from TTS.tts.datasets.dataset import *
+from TTS.config import BaseDatasetConfig
 from TTS.tts.datasets.formatters import *
 
 
@@ -66,14 +67,13 @@ def add_extra_keys(metadata, language, dataset_name):
         item["audio_unique_name"] = audio_unique_name
     return metadata
 
-
 def load_tts_samples(
-    datasets: Union[List[Dict], Dict],
+    datasets: Union[List[Dict], Dict, List[BaseDatasetConfig]],
     eval_split=True,
     formatter: Callable = None,
     eval_split_max_size=None,
     eval_split_size=0.01,
-) -> Tuple[List[List], List[List]]:
+) -> Union[Tuple[List[List], List[List]], Tuple[List[Dict], List[Dict]]]:
     """Parse the dataset from the datasets config, load the samples as a List and load the attention alignments if provided.
     If `formatter` is not None, apply the formatter to the samples else pick the formatter from the available ones based
     on the dataset name.
